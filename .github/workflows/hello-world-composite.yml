@@ -1,7 +1,15 @@
 name: 05-2. Hello World Composite
 
-on: 
-  [workflow_dispatch]
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      who_to_greet:
+        description: "Who we are greeting"
+        required: true
+        default: "Cody Carlson"
+        type: string
 
 jobs:
   hello_world_job1:
@@ -9,8 +17,20 @@ jobs:
     name: A job1 to say hello
     steps:
       - id: hello-world
-        uses: githubabcs/hello-world-composite-action@main
+        uses: cody-test-org/hello-world-javascript-action@main
         with:
-          who-to-greet: 'Hello from GH ABCs'
+          who-to-greet: ${{ inputs.who_to_greet }}
       - run: echo random-number ${{ steps.hello-world.outputs.random-number }}
+        shell: bash
+        
+  hello_world_job2:
+    runs-on: ubuntu-latest
+    name: A job2 to say hello
+    steps:
+      - uses: actions/checkout@v4
+      - id: hello-world
+        uses: ./.github/actions/hello-world-composite-action
+        with:
+          who-to-greet: 'Mona the Octocat from composite action'
+      - run: echo random-number from composite action ${{ steps.hello-world.outputs.random-number }}
         shell: bash
